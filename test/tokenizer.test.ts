@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import tokenizer, { NAME_REG, NUMBER_REG, getValueType } from '../src/tokenizer'
 
-test('regexp', () => {
+test.skip('regexp', () => {
   expect(NAME_REG.test('a12Bc')).toBe(true)
   expect(NUMBER_REG.test('123')).toBe(true)
 })
@@ -26,14 +26,14 @@ test('add', () => {
   expect(tokenizer(code)).toEqual(tokens)
 })
 
-test.skip('number', () => {
+test('number', () => {
   const code = '22'
   const tokens = [{ type: 'number', value: '22' }]
 
   expect(tokenizer(code)).toEqual(tokens)
 })
 
-test.skip('(add 1 2)', () => {
+test('easyTokenize', () => {
   const code = `(add 1 2)`
   const tokens = [
     { type: 'paren', value: '(' },
@@ -46,7 +46,7 @@ test.skip('(add 1 2)', () => {
   expect(tokenizer(code)).toEqual(tokens)
 })
 
-test.skip('tokenize', () => {
+test('tokenize', () => {
   const code = `(add 2 (subtract 4 2))`
   const tokens = [
     { type: 'paren', value: '(' },

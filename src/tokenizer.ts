@@ -1,6 +1,6 @@
 type TokenType = 'paren' | 'name' | 'number'
 
-interface Token {
+export interface Token {
   type: 'paren' | 'name' | 'number';
   value: string;
 }
@@ -34,32 +34,27 @@ export default function tokenizer (code: string): Token[] {
   const tokens: Token[] = []
   let current = 0 // 指针
   let char = '' // 当前字符
-  let value = '' // 积累的值
 
   while (current < code.length) { 
     char = code[current]
 
     if (SPACE_REG.test(char)) {
-      value && tokens.push(createToken(getValueType(value), value))
-      value = ''
       current++
-      continue
     }
 
     if (char === '(' || char === ')') {
-      value && tokens.push(createToken(getValueType(value), value))
       tokens.push(createToken('paren', char))
-      value = ''
       current++
-      continue
     }
 
-    value += char
-    current++
+    if (NAME_REG.test(char)) { 
+      let value = char // value = 'a'
+      while (NAME_REG.test(char = code[++current]) && char) { 
+        value += char // value = 'add'
+      }
+      tokens.push(createToken(getValueType(value), value))
+    }
   }
-
-  tokens.push(createToken(getValueType(value), value))
-  
 
   return tokens
 }
