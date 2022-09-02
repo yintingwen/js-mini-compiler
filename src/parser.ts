@@ -2,8 +2,9 @@ import { Token } from "./tokenizer"
 
 type AstNodeType = 'Program' | 'CallExpression' | 'NumberLiteral' | 'StringLiteral'
 
-interface AstNode { 
+interface AstNode {
   type: AstNodeType;
+  name?: string;
   value?: string;
   params?: AstNode[];
   body?: AstNode[];
@@ -23,74 +24,62 @@ interface AstStringNode extends AstNode {
 }
 
 interface AstCallExpression extends AstNode {
+  name: string;
   params: AstNode[];
 }
 
-export default function parser (tokens: Token[]): AstRootNode {
+export default function parser(tokens: Token[]): AstRootNode {
   const ast = createRootNode()
   let current = 0
-  let token: Token
-  
-  while (current < tokens.length) {
-    token = tokens[current]
+  let token: Token = tokens[current]
+  const stack: AstNode[][] = [ast.body]
 
-    if (token.type === 'number') {
-      ast.body.push(createNumberNode(token.value))
+  while (current < tokens.length) {
+    if (token.type !== 'paren') {
+      stack[0].push(token.type === 'name' ? createStringNode(token.value) : createNumberNode(token.value))
     }
 
-    current++
-  }
-
-  return ast
-}
-
-export function parserCallExpression (tokens: Token[]): AstNode {
-  const ast: AstCallExpression = {
-    type: 'CallExpression',
-    params: [],
-  }
-  let current = 0
-  let token: Token
-
-  while (current < tokens.length) {
-    token = tokens[current]
-
     if (token.type === 'paren' && token.value === '(') {
-      current++
-      continue
+      const callExpression = createCallExpression(tokens[++current].value)
+      stack[0].push(callExpression)
+      stack.unshift(callExpression.params)
     }
 
     if (token.type === 'paren' && token.value === ')') {
-      break
+      stack.shift()
     }
 
-    if (token.type === 'name') {
-      ast.params.push(createStringNode(token.value))
-    }
-    
-    current++
+    token = tokens[++current]
   }
-  
+
   return ast
 }
 
-export function createRootNode (body: AstNode[] = []): AstRootNode {
+export function createRootNode(body: AstNode[] = []): AstRootNode {
   return {
     type: 'Program',
     body
   }
 }
 
-export function createNumberNode (value: string): AstNumberNode {
+export function createNumberNode(value: string): AstNumberNode {
   return {
     type: 'NumberLiteral',
     value
   }
 }
 
-export function createStringNode (value: string): AstStringNode {
+export function createStringNode(value: string): AstStringNode {
   return {
     type: 'StringLiteral',
     value
+  }
+}
+
+export function createCallExpression(value: string): AstCallExpression {
+  return {
+    type: 'CallExpression',
+    name: value,
+    params: [],
   }
 }
