@@ -1,29 +1,30 @@
 import { Token } from "./tokenizer"
 
-type AstNodeType = 'Program' | 'CallExpression' | 'NumberLiteral' | 'StringLiteral'
+export type AstNodeType = 'Program' | 'CallExpression' | 'NumberLiteral' | 'StringLiteral'
 
-interface AstNode {
+export interface AstNode {
   type: AstNodeType;
   name?: string;
   value?: string;
   params?: AstNode[];
   body?: AstNode[];
+  _context?: any[];
 }
 
-interface AstRootNode extends AstNode {
+export interface AstRootNode extends AstNode {
   type: 'Program';
   body: AstNode[];
 }
 
-interface AstNumberNode extends AstNode {
+export interface AstNumberNode extends AstNode {
   type: 'NumberLiteral';
 }
 
-interface AstStringNode extends AstNode {
+export interface AstStringNode extends AstNode {
   type: 'StringLiteral';
 }
 
-interface AstCallExpression extends AstNode {
+export interface AstCallNode extends AstNode {
   name: string;
   params: AstNode[];
 }
@@ -76,7 +77,7 @@ export function createStringNode(value: string): AstStringNode {
   }
 }
 
-export function createCallExpression(value: string): AstCallExpression {
+export function createCallExpression(value: string): AstCallNode {
   return {
     type: 'CallExpression',
     name: value,
